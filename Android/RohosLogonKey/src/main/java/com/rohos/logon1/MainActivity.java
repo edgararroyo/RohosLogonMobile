@@ -129,8 +129,8 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> unusedParent, View row,
                                     int unusedPosition, long unusedId) {
 
-                String acctName = ((TextView) row.findViewById(R.id.recordName)).getText().toString();
-                String hostName = ((TextView) row.findViewById(R.id.hostName)).getText().toString();
+                String acctName = ((TextView) row.findViewById(R.id.recordName)).getText().toString().replace("\\", "");
+                String hostName = ((TextView) row.findViewById(R.id.hostName)).getText().toString().replace("\\\\", "/");
 
                 sendMqttLoginRequest(acctName, hostName);
             }
@@ -352,7 +352,7 @@ public class MainActivity extends AppCompatActivity {
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
             String acctName = mAuthRecords[info.position].qr_user;
             String hostName = mAuthRecords[info.position].qr_host_name;
-            menu.setHeaderTitle(acctName + " " + hostName);
+            menu.setHeaderTitle(hostName.replace("/", "\\\\") + "\\" + acctName);
 
             menu.add(0, REMOVE_ID, 0, R.string.remove);
         }
@@ -368,7 +368,7 @@ public class MainActivity extends AppCompatActivity {
             case REMOVE_ID:
                 new AlertDialog.Builder(this)
                         .setTitle(getString(R.string.remove_account_title, acctName))
-                        .setMessage(getString(R.string.remove_account_info, hostName))
+                        .setMessage(getString(R.string.remove_account_info, hostName.replace("/", "")))
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setPositiveButton(R.string.remove,
                                 new DialogInterface.OnClickListener() {
@@ -492,11 +492,13 @@ public class MainActivity extends AppCompatActivity {
                 row = inflater.inflate(R.layout.list_row_view, null);
             }
 
+            String acctName = currentRecord.qr_user;
             TextView nameView = row.findViewById(R.id.recordName);
-            nameView.setText(currentRecord.qr_user);
+            nameView.setText("\\" + acctName);
 
+            String hostName = currentRecord.qr_host_name;
             nameView = row.findViewById(R.id.hostName);
-            nameView.setText(currentRecord.qr_host_name);
+            nameView.setText(hostName.replace("/", "\\\\"));
 
             return row;
         }
