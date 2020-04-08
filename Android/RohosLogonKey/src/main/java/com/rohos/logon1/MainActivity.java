@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String OTP_SCHEME = "rohos1";
 
     public static final int REMOVE_ID = 2;
+    public static final int LOGIN_ID = 3;
 
     // Links
     public static final String ZXING_MARKET =
@@ -354,7 +355,8 @@ public class MainActivity extends AppCompatActivity {
             String hostName = mAuthRecords[info.position].qr_host_name;
             menu.setHeaderTitle(hostName.replace("/", "\\\\") + "\\" + acctName);
 
-            menu.add(0, REMOVE_ID, 0, R.string.remove);
+            menu.add(0, REMOVE_ID, 1, R.string.remove);
+            menu.add(0, LOGIN_ID, 0, R.string.login);
         }
     }
 
@@ -381,6 +383,9 @@ public class MainActivity extends AppCompatActivity {
                         )
                         .setNegativeButton(R.string.cancel, null)
                         .show();
+                return true;
+            case LOGIN_ID:
+                sendMqttLoginRequest(acctName, hostName);
                 return true;
             default:
                 return super.onContextItemSelected(item);

@@ -37,6 +37,7 @@
     <string name="howitworks_page_title">How it works</string>
 
     <string name="remove">Remove</string>
+    <string name="login">Login</string>
     <string name="remove_account_title">Remove %1$s?</string>
     <string name="remove_account_info">Please ensure you can login into computer %1$s by password before deleting this login item.</string>
     <string name="knock_recog_title">Set knock recognition</string>
