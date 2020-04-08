@@ -36,8 +36,9 @@
     <string name="help_use_widget">3. Use Rohos widget on lock screen or desktop to quickly unlock computer.</string>
     <string name="howitworks_page_title">How it works</string>
 
+    <string name="unlock">Unlock</string>
+    <string name="lock">Lock</string>
     <string name="remove">Remove</string>
-    <string name="login">Login</string>
     <string name="remove_account_title">Remove %1$s?</string>
     <string name="remove_account_info">Please ensure you can login into computer %1$s by password before deleting this login item.</string>
     <string name="knock_recog_title">Set knock recognition</string>
@@ -45,7 +46,7 @@
     <string name="knock_recog_summ">Use knock recognition to unlock PC</string>
     <string name="test_knock_title">Test knock recognition</string>
     <string name="test_konck_summ">Tap to test knock recognition</string>
-    <string name="lock_if_leavs_conn_title">Lock PC when phone leaves WiFi network or Bluetooth connection</string>
+    <string name="lock_if_leavs_conn_title">Lock PC if WiFi or Bluetooth connection is lost</string>
     <string name="use_bluetooth_unlock_title">Use Bluetooth to unlock when possible</string>
     <string name="service_started">Service started</string>
     <string name="service_summ">Lock PC when leaves network</string>

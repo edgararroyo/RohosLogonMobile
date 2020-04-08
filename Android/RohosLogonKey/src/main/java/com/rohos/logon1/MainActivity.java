@@ -65,8 +65,9 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String OTP_SCHEME = "rohos1";
 
-    public static final int REMOVE_ID = 2;
-    public static final int LOGIN_ID = 3;
+    public static final int UNLOCK_ID = 2;
+    public static final int LOCK_ID = 3;
+    public static final int REMOVE_ID = 4;
 
     // Links
     public static final String ZXING_MARKET =
@@ -355,8 +356,9 @@ public class MainActivity extends AppCompatActivity {
             String hostName = mAuthRecords[info.position].qr_host_name;
             menu.setHeaderTitle(hostName.replace("/", "\\\\") + "\\" + acctName);
 
-            menu.add(0, REMOVE_ID, 1, R.string.remove);
-            menu.add(0, LOGIN_ID, 0, R.string.login);
+            menu.add(0, UNLOCK_ID, 0, R.string.unlock);
+            //menu.add(0, LOCK_ID, 1, R.string.lock);
+            menu.add(0, REMOVE_ID, 2, R.string.remove);
         }
     }
 
@@ -367,6 +369,12 @@ public class MainActivity extends AppCompatActivity {
         final String acctName = mAuthRecords[info.position].qr_user; // final so listener can see value
         final String hostName = mAuthRecords[info.position].qr_host_name; // final so listener can see value
         switch (item.getItemId()) {
+            case UNLOCK_ID:
+                sendMqttLoginRequest(acctName, hostName);
+                return true;
+            case LOCK_ID:
+                // Need listener to lock PC
+                return true;
             case REMOVE_ID:
                 new AlertDialog.Builder(this)
                         .setTitle(getString(R.string.remove_account_title, acctName))
@@ -383,9 +391,6 @@ public class MainActivity extends AppCompatActivity {
                         )
                         .setNegativeButton(R.string.cancel, null)
                         .show();
-                return true;
-            case LOGIN_ID:
-                sendMqttLoginRequest(acctName, hostName);
                 return true;
             default:
                 return super.onContextItemSelected(item);
