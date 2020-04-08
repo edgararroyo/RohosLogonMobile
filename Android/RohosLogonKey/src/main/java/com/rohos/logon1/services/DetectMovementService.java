@@ -160,7 +160,9 @@ public class DetectMovementService extends Service implements SensorEventListene
             authRecordsDb.getNames(recordNames);
 
             for(int i = 0; i < recordNames.size(); i++){
-                AuthRecord ar = authRecordsDb.getAuthRecord(recordNames.get(i));
+                String acctName = recordNames.get(i).substring(0, recordNames.get(i).indexOf("|"));
+                String hostName = recordNames.get(i).substring(recordNames.get(i).indexOf("|")+1);
+                AuthRecord ar = authRecordsDb.getAuthRecord(acctName, hostName);
                 NetworkSender netSender = new NetworkSender(getApplicationContext());
                 netSender.execute(ar);
             }

@@ -129,9 +129,10 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> unusedParent, View row,
                                     int unusedPosition, long unusedId) {
 
-                String accName = ((TextView) row.findViewById(R.id.recordName)).getText().toString();
+                String acctName = ((TextView) row.findViewById(R.id.recordName)).getText().toString();
+                String hostName = ((TextView) row.findViewById(R.id.hostName)).getText().toString();
 
-                sendMqttLoginRequest(accName);
+                sendMqttLoginRequest(acctName, hostName);
             }
         });
 
@@ -252,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(browserIntent);
     }
 
-    private void sendMqttLoginRequest(String accountName) {
+    private void sendMqttLoginRequest(String acctName, String hostName) {
 
         Resources res = getResources();
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
@@ -261,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
             // Log.d(TAG, "Start BTService");
         }
 
-        AuthRecord ar = mRecordsDb.getAuthRecord(accountName);
+        AuthRecord ar = mRecordsDb.getAuthRecord(acctName, hostName);
 
         if (ar.qr_user == null || ar.qr_user.length() == 0) {
             ((TextView) findViewById(R.id.textQRcode)).setText(String.format("Please install Rohos Logon Key on the desktop and scan QR-code first."));
@@ -349,7 +350,9 @@ public class MainActivity extends AppCompatActivity {
         if (v.getId() == R.id.listView) {
             super.onCreateContextMenu(menu, v, menuInfo);
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-            menu.setHeaderTitle(mAuthRecords[info.position].qr_user + " " + mAuthRecords[info.position].qr_host_name);
+            String acctName = mAuthRecords[info.position].qr_user;
+            String hostName = mAuthRecords[info.position].qr_host_name;
+            menu.setHeaderTitle(acctName + " " + hostName);
 
             menu.add(0, REMOVE_ID, 0, R.string.remove);
         }
@@ -359,19 +362,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        final String recordName = mAuthRecords[info.position].qr_user; // final so listener can see value
-        final String recordHostName = mAuthRecords[info.position].qr_host_name; // final so listener can see value
+        final String acctName = mAuthRecords[info.position].qr_user; // final so listener can see value
+        final String hostName = mAuthRecords[info.position].qr_host_name; // final so listener can see value
         switch (item.getItemId()) {
             case REMOVE_ID:
                 new AlertDialog.Builder(this)
-                        .setTitle(getString(R.string.remove_account_title, recordName))
-                        .setMessage(getString(R.string.remove_account_info, recordHostName))
+                        .setTitle(getString(R.string.remove_account_title, acctName))
+                        .setMessage(getString(R.string.remove_account_info, hostName))
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setPositiveButton(R.string.remove,
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int whichButton) {
-                                        mRecordsDb.delete(recordHostName, recordName);
+                                        mRecordsDb.delete(acctName, hostName);
                                         refreshRecordsList(true);
                                     }
                                 }
@@ -449,7 +452,9 @@ public class MainActivity extends AppCompatActivity {
             authRecordDb.getNames(recordNames);
 
             for (int i = 0; i < recordNames.size(); i++) {
-                AuthRecord ar = authRecordDb.getAuthRecord(recordNames.get(i));
+                String acctName = recordNames.get(i).substring(0, recordNames.get(i).indexOf("|"));
+                String hostName = recordNames.get(i).substring(recordNames.get(i).indexOf("|")+1);
+                AuthRecord ar = authRecordDb.getAuthRecord(acctName, hostName);
                 MQTTSender sender = new MQTTSender(this.getApplicationContext());
                 sender.execute(ar);
                 SystemClock.sleep(400);
@@ -510,8 +515,9 @@ public class MainActivity extends AppCompatActivity {
             }
 
             for (int i = 0; i < userCount; ++i) {
-                String name = recordNames.get(i);
-                mAuthRecords[i] = mRecordsDb.getAuthRecord(name);
+                String acctName = recordNames.get(i).substring(0, recordNames.get(i).indexOf("|"));
+                String hostName = recordNames.get(i).substring(recordNames.get(i).indexOf("|")+1);
+                mAuthRecords[i] = mRecordsDb.getAuthRecord(acctName, hostName);
 
             }
 
@@ -635,7 +641,9 @@ public class MainActivity extends AppCompatActivity {
 
             saveRecordAndRefreshList(ai);
 
-            sendMqttLoginRequest(ai.qr_user);
+            String acctName = ai.qr_user;
+            String hostName = ai.qr_host_name;
+            sendMqttLoginRequest(acctName, hostName);
 
         } catch (java.lang.NumberFormatException err2) {
             ((TextView) findViewById(R.id.textQRcode)).setText(String.format(" %s", err2.toString()));

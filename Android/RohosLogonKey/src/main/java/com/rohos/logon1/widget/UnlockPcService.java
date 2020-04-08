@@ -101,8 +101,9 @@ public class UnlockPcService extends Service {
 
 	        if(userCount > 0){
 	            for(int i = 0; i < userCount; ++i){
-	                String name = recordNames.get(i);
-	                AuthRecord ar1  = mAuthRecordsDb.getAuthRecord(name);
+					String acctName = recordNames.get(i).substring(0, recordNames.get(i).indexOf("|"));
+					String hostName = recordNames.get(i).substring(recordNames.get(i).indexOf("|")+1);
+					AuthRecord ar1  = mAuthRecordsDb.getAuthRecord(acctName, hostName);
 
 	                NetworkSender  mNetSender1 = new NetworkSender(getApplicationContext());
 	                mNetSender1.execute(ar1);

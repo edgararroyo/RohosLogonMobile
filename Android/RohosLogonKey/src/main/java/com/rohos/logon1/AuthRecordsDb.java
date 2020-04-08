@@ -150,20 +150,20 @@ public class AuthRecordsDb {
         return true;
     }
 
-    public boolean nameExists(String email) {
+    /* public boolean nameExists(String email) {
         Cursor cursor = getAccount(email);
         try {
             return !cursorIsEmpty(cursor);
         } finally {
             tryCloseCursor(cursor);
         }
-    }
+    }*/
 
-    public boolean hostExists(String host) {
+    public boolean hostExists(String hostName) {
         Cursor cursor = null;
         try {
             cursor = mDatabase.query(TABLE_NAME, null, HOST_NAME_COLUMN + "= ?",
-                    new String[]{host}, null, null, null);
+                    new String[]{hostName}, null, null, null);
 
             return !cursorIsEmpty(cursor);
         } catch (Exception e) {
@@ -183,8 +183,8 @@ public class AuthRecordsDb {
             if (!cursorIsEmpty(cursor)) {
                // Log.d(TAG, "Cursor size " + cursor.getCount());
                 while (cursor.moveToNext()) {
-                    String host = cursor.getString(cursor.getColumnIndex(HOST_NAME_COLUMN));
-                //    Log.d(TAG, "host: " + host + ", length " + host.length());
+                    String hostName = cursor.getString(cursor.getColumnIndex(HOST_NAME_COLUMN));
+                //    Log.d(TAG, "host: " + hostName + ", length " + hostName.length());
                 }
             } else {
               //  Log.d(TAG, "Cursor id empty");
@@ -194,8 +194,8 @@ public class AuthRecordsDb {
         }
     }
 
-    public AuthRecord getAuthRecord(String name) {
-        Cursor cursor = getAccount(name);
+    public AuthRecord getAuthRecord(String acctName, String hostName) {
+        Cursor cursor = getAccount(acctName, hostName);
         AuthRecord ai = new AuthRecord();
         try {
             if (!cursorIsEmpty(cursor)) {
@@ -218,8 +218,8 @@ public class AuthRecordsDb {
         return ai;
     }
 
-    public AuthRecord getAuthRecordByHostName(String host) {
-        Cursor cursor = getAccountByHostName(host);
+    public AuthRecord getAuthRecordByHostName(String hostName) {
+        Cursor cursor = getAccountByHostName(hostName);
         AuthRecord ai = new AuthRecord();
         try {
             if (!cursorIsEmpty(cursor)) {
@@ -244,13 +244,13 @@ public class AuthRecordsDb {
         return ai;
     }
 
-    private static String whereClause(String name) {
+    /* private static String whereClause(String name) {
         return USER_NAME_COLUMN + " = " + DatabaseUtils.sqlEscapeString(name);
-    }
+    }*/
 
-    public void delete(String computer_name, String record_name) {
-        mDatabase.delete(TABLE_NAME, USER_NAME_COLUMN + " = " + DatabaseUtils.sqlEscapeString(record_name) + " AND " +
-                HOST_NAME_COLUMN + " = " + DatabaseUtils.sqlEscapeString(computer_name), null);
+    public void delete(String acctName, String hostName) {
+        mDatabase.delete(TABLE_NAME, USER_NAME_COLUMN + "= ? AND " + HOST_NAME_COLUMN + "= ?",
+                new String[]{acctName, hostName});
     }
 
 
@@ -269,8 +269,10 @@ public class AuthRecordsDb {
         values.put(HOST_PORT_COLUMN, ai.qr_host_port);
         values.put(SETT_COLUMN, ".");
 
-        int updated = mDatabase.update(TABLE_NAME, values,
-                whereClause(ai.qr_user), null);
+        String acctName = ai.qr_user;
+        String hostName = ai.qr_host_name;
+        int updated = mDatabase.update(TABLE_NAME, values, USER_NAME_COLUMN + "= ? AND " + HOST_NAME_COLUMN + "= ?",
+                new String[]{acctName, hostName});
         if (updated == 0) {
             mDatabase.insert(TABLE_NAME, null, values);
         }
@@ -280,14 +282,14 @@ public class AuthRecordsDb {
         return mDatabase.query(TABLE_NAME, null, null, null, null, null, null, null);
     }
 
-    private Cursor getAccount(String name) {
-        return mDatabase.query(TABLE_NAME, null, USER_NAME_COLUMN + "= ?",
-                new String[]{name}, null, null, null);
+    private Cursor getAccount(String acctName, String hostName) {
+        return mDatabase.query(TABLE_NAME, null, USER_NAME_COLUMN + "= ? AND " + HOST_NAME_COLUMN + "= ?",
+                new String[]{acctName, hostName}, null, null, null);
     }
 
-    private Cursor getAccountByHostName(String host) {
+    private Cursor getAccountByHostName(String hostName) {
         return mDatabase.query(TABLE_NAME, null, HOST_NAME_COLUMN + "= ?",
-                new String[]{host}, null, null, null);
+                new String[]{hostName}, null, null, null);
     }
 
     /**
@@ -320,16 +322,18 @@ public class AuthRecordsDb {
             if (cursorIsEmpty(cursor))
                 return 0;
 
-            int nameCount = cursor.getCount();
-            int index = cursor.getColumnIndex(AuthRecordsDb.USER_NAME_COLUMN);
+            int acctCount = cursor.getCount();
+            int nameIndex = cursor.getColumnIndex(AuthRecordsDb.USER_NAME_COLUMN);
+            int hostIndex = cursor.getColumnIndex(AuthRecordsDb.HOST_NAME_COLUMN);
 
-            for (int i = 0; i < nameCount; ++i) {
+            for (int i = 0; i < acctCount; ++i) {
                 cursor.moveToPosition(i);
-                String username = cursor.getString(index);
-                result.add(username);
+                String acctName = cursor.getString(nameIndex);
+                String hostName = cursor.getString(hostIndex);
+                result.add(acctName + "|" + hostName);
             }
 
-            return nameCount;
+            return acctCount;
         } finally {
             tryCloseCursor(cursor);
         }
